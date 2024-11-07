@@ -15,9 +15,21 @@ if __name__ == "__main__":
 
         class Meta: 
             database = db
+
+    class Telephone(Model):
+        number = CharField(max_length=50)
+        owner = ForeignKeyField(Person, null=True, backref="telephones")
+        model = CharField(max_length=80)
+        ram_size = SmallIntegerField()
+
+        def __str__(self):
+            return f"Telephone ({self.get_id()}) : {self.number}"
+
+        class Meta:
+            database = db
         
     db.connect() 
-    db.create_tables([Person], safe=True)
+    db.create_tables([Person, Telephone], safe=True)
 
     john= Person(first_name= 'John', last_name="last", gender=0, job='hitman', email='jdoe@gmail.com')
     john.save()
@@ -39,3 +51,15 @@ if __name__ == "__main__":
 
     for individual in Person.select().where(Person.birth_date > "1990-01-01" & Person.birth_date <"2000-06-07"): 
         print(individual.birth_date)
+
+    owner = Person.select().order_by(fn.RANDOM()).get()
+    phone1 = Telephone.create(
+        number=faker.phone_number(),
+        owner=owner,
+        model=f"iPhone {randint(1, 15)}",
+        ram_size=randint(1, 32)
+    )
+
+    # Lister les téléphones de la base
+    for telephone in Telephone.select():
+        print(telephone, telephone.owner)
