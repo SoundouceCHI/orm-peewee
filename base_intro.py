@@ -1,6 +1,7 @@
 from peewee import *
 from faker import Faker
 from random import randint
+from peewee import ModelSelect 
 
 if __name__ == "__main__":
     db = SqliteDatabase('database.sqlite')
@@ -63,3 +64,19 @@ if __name__ == "__main__":
     # Lister les téléphones de la base
     for telephone in Telephone.select():
         print(telephone, telephone.owner)
+
+    for individual in Person.select().where(Person.first_name.startswith("a")):
+        print(f"{individual} : First name is {individual.first_name}")
+
+    for individual in Person.select().where(Person.birth_date.month == 6):
+        print(f"{individual} : Birth date is {individual.birth_date}")
+
+    for individual in Person.select().where(fn.LENGTH(Person.first_name) == 5):
+        print(f"{individual} : First name is {individual.first_name}")
+
+    result: ModelSelect = Person.select(fn.AVG(Person.gender).alias("average"), fn.COUNT(Person.gender).alias("count"))
+    print(result.scalar(as_dict=True)) 
+
+    #personne avec phone1 
+    for person in Person.select().join(Telephone).where(Telephone.id== phone1) : 
+        print(person.first_name)
